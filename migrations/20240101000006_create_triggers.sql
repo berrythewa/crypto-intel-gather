@@ -23,7 +23,7 @@ BEGIN
         ),
         is_profitable = (
             SELECT CASE 
-                WHEN SUM(profit_usd) > 10000 THEN TRUE
+                WHEN SUM(profit_usd) > 0 THEN TRUE  -- Any positive profit = profitable
                 ELSE FALSE
             END
             FROM transactions 
@@ -46,8 +46,9 @@ CREATE TRIGGER trigger_update_wallet_profitability
 CREATE OR REPLACE FUNCTION generate_profitable_move_alert()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Generate alert for profitable moves above threshold
-    IF NEW.is_profitable_tx = TRUE AND NEW.profit_usd > 1000 THEN
+    -- Generate alert for profitable moves above threshold (configurable)
+    -- You can adjust this threshold in your application logic
+    IF NEW.is_profitable_tx = TRUE AND NEW.profit_usd > 100 THEN  -- $100 minimum for alerts
         INSERT INTO alerts (
             alert_type,
             severity,
@@ -64,9 +65,9 @@ BEGIN
         ) VALUES (
             'profitable_move',
             CASE 
-                WHEN NEW.profit_usd > 10000 THEN 'success'
-                WHEN NEW.profit_usd > 5000 THEN 'warning'
-                ELSE 'info'
+                WHEN NEW.profit_usd > 10000 THEN 'success'  -- Big wins
+                WHEN NEW.profit_usd > 1000 THEN 'warning'   -- Medium wins
+                ELSE 'info'                                  -- Small wins
             END,
             'Profitable Move Detected',
             'Wallet ' || NEW.from_address || ' made a profitable move of $' || NEW.profit_usd,
