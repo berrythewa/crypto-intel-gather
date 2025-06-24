@@ -1,0 +1,107 @@
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+*.pdb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+*.log
+logs/
+log/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Configuration (with sensitive data)
+configs/config.toml
+configs/config.prod.toml
+
+# API keys and secrets
+secrets/
+*.key
+*.pem
+*.p12
+
+# Data files
+data/
+backups/
+exports/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Build artifacts
+dist/
+build/
+*.tar.gz
+*.zip
+
+# Docker
+.dockerignore
+
+# Kubernetes
+*.kubeconfig
+
+# Testing
+coverage/
+*.profraw
+
+# Documentation build
+docs/_build/
+site/
+
+# Python (if any scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Node.js (if any frontend tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# System files
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs* 

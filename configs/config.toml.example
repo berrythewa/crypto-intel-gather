@@ -1,0 +1,148 @@
+# Crypto Intel Rust Backend Configuration
+# Copy this file to configs/config.toml and update with your values
+
+[app]
+name = "crypto-intel-rust"
+version = "0.1.0"
+log_level = "info"
+environment = "development"
+
+[database]
+url = "postgresql://crypto_intel_user:your_password@localhost/crypto_intel"
+max_connections = 10
+timeout_seconds = 30
+ssl_mode = "prefer"
+
+[wallet_tracker]
+# Etherscan configuration
+etherscan_api_key = "your_etherscan_api_key_here"
+etherscan_base_url = "https://api.etherscan.io/api"
+rate_limit_per_second = 5
+
+# Alchemy configuration
+alchemy_api_key = "your_alchemy_api_key_here"
+alchemy_base_url = "https://eth-mainnet.g.alchemy.com/v2"
+
+# Tracking configuration
+tracking_interval_seconds = 60
+max_wallets_per_request = 100
+batch_size = 50
+
+# Wallet addresses to track (add your target addresses)
+target_wallets = [
+    "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6",
+    "0x1234567890123456789012345678901234567890"
+]
+
+[market_watch]
+# DexScreener configuration
+dexscreener_base_url = "https://api.dexscreener.com/latest"
+dexscreener_rate_limit_per_second = 10
+
+# CoinGecko configuration
+coingecko_base_url = "https://api.coingecko.com/api/v3"
+coingecko_api_key = "your_coingecko_api_key_here"  # Optional
+coingecko_rate_limit_per_second = 10
+
+# Market monitoring
+price_check_interval_seconds = 30
+volume_spike_threshold = 2.0
+price_change_threshold_percent = 10
+
+# Tokens to monitor
+target_tokens = [
+    "0xA0b86a33E6441b8c4C8C8C8C8C8C8C8C8C8C8C8",  # Example token address
+    "ethereum",
+    "bitcoin"
+]
+
+[alerts]
+# Telegram configuration
+telegram_bot_token = "your_telegram_bot_token_here"
+telegram_chat_id = "your_telegram_chat_id_here"
+
+# Email configuration (optional)
+smtp_host = "smtp.gmail.com"
+smtp_port = 587
+smtp_username = "your_email@gmail.com"
+smtp_password = "your_app_password"
+
+# Alert thresholds
+min_transaction_value_usd = 10000
+min_volume_change_percent = 50
+price_change_threshold_percent = 10
+wallet_balance_change_threshold_usd = 5000
+
+# Alert channels
+enable_telegram = true
+enable_email = false
+enable_webhook = false
+webhook_url = "https://your-webhook-url.com/alerts"
+
+[chains]
+# Supported chains configuration
+[[chains.ethereum]]
+name = "ethereum"
+chain_id = 1
+rpc_url = "https://eth-mainnet.g.alchemy.com/v2/your_key"
+explorer_url = "https://etherscan.io"
+enabled = true
+
+[[chains.polygon]]
+name = "polygon"
+chain_id = 137
+rpc_url = "https://polygon-rpc.com"
+explorer_url = "https://polygonscan.com"
+enabled = true
+
+[[chains.bsc]]
+name = "bsc"
+chain_id = 56
+rpc_url = "https://bsc-dataseed.binance.org"
+explorer_url = "https://bscscan.com"
+enabled = true
+
+[api]
+# API server configuration (if enabled)
+enabled = true
+host = "127.0.0.1"
+port = 8080
+cors_origins = ["http://localhost:3000", "https://your-frontend.com"]
+
+# Authentication
+jwt_secret = "your_jwt_secret_here"
+jwt_expiration_hours = 24
+
+# Rate limiting
+requests_per_minute = 100
+burst_size = 10
+
+[monitoring]
+# Metrics configuration
+enable_metrics = true
+metrics_port = 9090
+
+# Health check
+health_check_interval_seconds = 30
+
+# Logging
+log_format = "json"  # "json" or "text"
+log_file = "logs/crypto-intel-rust.log"
+max_log_size_mb = 100
+log_retention_days = 7
+
+[timescaledb]
+# TimescaleDB specific configuration
+compression_enabled = true
+compression_after_days = 7
+retention_days = 730  # 2 years
+
+# Continuous aggregates
+enable_continuous_aggregates = true
+aggregate_refresh_interval_minutes = 5
+
+[development]
+# Development-specific settings
+debug_mode = true
+mock_external_apis = false
+seed_test_data = false 
