@@ -1,9 +1,9 @@
-# Phase 1 — MVP with Public APIs (Rust Backend) 🚀
+# Phase 1 — MVP with RPC Endpoints (Rust Backend) 🚀
 
 ## 🎯 Phase 1 Goal
 
 Build a working crypto forensics tool that:
-- Tracks wallet activity across multiple EVM chains
+- Tracks wallet activity across multiple EVM chains using Alloy and RPC endpoints
 - Monitors market movements and token prices
 - Logs events to database for analysis
 - Sends alerts on interesting patterns
@@ -126,17 +126,19 @@ cargo add tracing tracing-subscriber
 cargo add clap --features derive
 cargo add config anyhow chrono uuid
 
-# Add Alloy for EVM interactions
+# Add Alloy for EVM interactions (replaces Etherscan/Alchemy)
 cargo add alloy --features full
 cargo add alloy-primitives
 cargo add alloy-json-abi
 cargo add alloy-sol-types
+cargo add alloy-providers
+cargo add alloy-rpc-client
 ```
 
 #### Day 4: Project Structure Setup
 ```bash
 # Create directory structure
-mkdir -p src/{wallet_tracker,market_watch,storage,alerts,evm,config}
+mkdir -p src/{wallet_tracker,market_watch,storage,alerts,evm,config,rpc_client}
 mkdir -p tests/common
 mkdir -p configs
 mkdir -p data
@@ -181,16 +183,15 @@ chmod +x scripts/deploy/setup.sh
 #### Day 1-3: Wallet Tracker Core
 **Files to create:**
 - `src/wallet_tracker/mod.rs` - Module entry point
-- `src/wallet_tracker/etherscan.rs` - Etherscan API client
-- `src/wallet_tracker/alchemy.rs` - Alchemy API client
-- `src/wallet_tracker/alloy_client.rs` - Alloy-based client
+- `src/wallet_tracker/alloy_client.rs` - Alloy-based wallet tracking
+- `src/wallet_tracker/rpc_provider.rs` - RPC endpoint management
 - `src/wallet_tracker/types.rs` - Wallet tracking types
 
-#### Day 4-5: API Integration
-- Implement Etherscan API client with rate limiting
-- Implement Alchemy API client for enhanced data
-- Add wallet balance tracking
-- Add transaction history monitoring
+#### Day 4-5: RPC Integration
+- Implement Alloy RPC client with public endpoints
+- Add wallet balance tracking using `eth_getBalance`
+- Add transaction history monitoring using `eth_getTransactionCount`
+- Add block monitoring for new transactions
 
 #### Day 6-7: Multi-Chain Support
 - Add support for Ethereum mainnet
@@ -256,9 +257,8 @@ crypto-intel-rust/
 │   ├── wallet_tracker/
 │   │   ├── mod.rs              # Module exports
 │   │   ├── types.rs            # Wallet tracking types
-│   │   ├── etherscan.rs        # Etherscan API client
-│   │   ├── alchemy.rs          # Alchemy API client
-│   │   └── alloy_client.rs     # Alloy-based client
+│   │   ├── alloy_client.rs      # Alloy-based client
+│   │   └── rpc_provider.rs      # RPC endpoint management
 │   ├── market_watch/
 │   │   ├── mod.rs              # Module exports
 │   │   ├── types.rs            # Market data types
@@ -353,6 +353,8 @@ alloy = { version = "0.1", features = ["full"] }
 alloy-primitives = "0.1"
 alloy-json-abi = "0.1"
 alloy-sol-types = "0.1"
+alloy-providers = "0.1"
+alloy-rpc-client = "0.1"
 
 # Utilities
 hex = "0.4"
@@ -375,15 +377,6 @@ max_connections = 10
 timeout_seconds = 30
 
 [wallet_tracker]
-# Etherscan configuration
-etherscan_api_key = "your_etherscan_api_key"
-etherscan_base_url = "https://api.etherscan.io/api"
-rate_limit_per_second = 5
-
-# Alchemy configuration
-alchemy_api_key = "your_alchemy_api_key"
-alchemy_base_url = "https://eth-mainnet.g.alchemy.com/v2"
-
 # Tracking configuration
 tracking_interval_seconds = 60
 max_wallets_per_request = 100
@@ -416,7 +409,7 @@ price_change_threshold_percent = 10
 [[chains.ethereum]]
 name = "ethereum"
 chain_id = 1
-rpc_url = "https://eth-mainnet.g.alchemy.com/v2/your_key"
+rpc_url = "https://eth.llamarpc.com"
 explorer_url = "https://etherscan.io"
 
 [[chains.polygon]]
@@ -428,7 +421,7 @@ explorer_url = "https://polygonscan.com"
 [[chains.bsc]]
 name = "bsc"
 chain_id = 56
-rpc_url = "https://bsc-dataseed.binance.org"
+rpc_url = "https://bsc-dataseed1.binance.org"
 explorer_url = "https://bscscan.com"
 ```
 
@@ -653,7 +646,7 @@ cargo add tracing tracing-subscriber
 cargo add clap --features derive
 cargo add config anyhow chrono uuid
 cargo add alloy --features full
-cargo add alloy-primitives alloy-json-abi alloy-sol-types
+cargo add alloy-primitives alloy-json-abi alloy-sol-types alloy-providers alloy-rpc-client
 
 # 4. Set up database (already done in Day 2)
 # Database is configured and ready

@@ -43,11 +43,13 @@ chrono = { version = "0.4", features = ["serde"] }
 # UUID
 uuid = { version = "1.0", features = ["v4", "serde"] }
 
-# Alloy for EVM interactions
+# Alloy for EVM interactions (replaces Etherscan/Alchemy APIs)
 alloy = { version = "0.1", features = ["full"] }
 alloy-primitives = "0.1"
 alloy-json-abi = "0.1"
 alloy-sol-types = "0.1"
+alloy-providers = "0.1"
+alloy-rpc-client = "0.1"
 
 # Utilities
 hex = "0.4"

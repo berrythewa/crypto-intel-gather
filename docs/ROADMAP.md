@@ -1,17 +1,17 @@
 # Crypto Forensics Tool Roadmap - Rust Edition 🦀
 
-**Hybrid approach**: **API for fast prototyping**, **self-hosted node for resilience**, and **Python for deep insights** once you're logging enough data.
+**Alloy-first approach**: **RPC endpoints for immediate deployment**, **self-hosted nodes for production**, and **Python for deep insights** once you're logging enough data.
 
 ---
 
-## 🚀 Phase 1 — MVP with Public APIs (Rust Backend)
+## 🚀 Phase 1 — MVP with RPC Endpoints (Rust Backend)
 
 ### 🎯 Goal
 
 Get a basic working system that:
 
-* Tracks wallet activity
-* Detects market movements
+* Tracks wallet activity using public RPC endpoints
+* Detects market movements via DexScreener/CoinGecko APIs
 * Sends alerts/logs
 * Stores data for later analysis
 * **Deployed on VPS with production-ready database**
@@ -20,7 +20,7 @@ Get a basic working system that:
 
 | Module           | Description                                                        |
 | ---------------- | ------------------------------------------------------------------ |
-| `wallet-tracker` | Polls Etherscan (or Alchemy) to track wallet activity              |
+| `wallet-tracker` | Uses Alloy to query public RPC endpoints for wallet activity       |
 | `market-watch`   | Pulls token price, volume, liquidity info (e.g., from DexScreener) |
 | `event-logger`   | Logs wallet and token events to DB                                 |
 | `alert-engine`   | Sends console logs / Telegram alerts on interesting events         |
@@ -30,7 +30,8 @@ Get a basic working system that:
 ### 🔧 Rust Stack
 
 * **Rust** for backend (async/await with Tokio)
-* **reqwest** for HTTP client (async)
+* **Alloy** for EVM/Ethereum RPC interactions (replaces Etherscan/Alchemy)
+* **reqwest** for HTTP client (async) - only for market data APIs
 * **serde** for JSON serialization/deserialization
 * **tokio** for async runtime
 * **sqlx** for database operations (PostgreSQL with TimescaleDB extension)
@@ -38,7 +39,6 @@ Get a basic working system that:
 * **clap** for CLI argument parsing
 * **config** for configuration management
 * **anyhow** for error handling
-* **alloy** for EVM/Ethereum interactions
 
 ### 📦 Key Rust Crates
 
@@ -57,11 +57,24 @@ anyhow = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.0", features = ["v4", "serde"] }
 
-# Alloy for EVM interactions
+# Alloy for EVM interactions (replaces Etherscan/Alchemy)
 alloy = { version = "0.1", features = ["full"] }
 alloy-primitives = "0.1"
 alloy-json-abi = "0.1"
 alloy-sol-types = "0.1"
+alloy-providers = "0.1"
+alloy-rpc-client = "0.1"
+```
+
+### 🌐 Public RPC Endpoints (No API Keys Required)
+
+```toml
+[networks]
+ethereum = "https://eth.llamarpc.com"
+polygon = "https://polygon-rpc.com"
+bsc = "https://bsc-dataseed1.binance.org"
+arbitrum = "https://arb1.arbitrum.io/rpc"
+optimism = "https://mainnet.optimism.io"
 ```
 
 ---
@@ -71,11 +84,11 @@ alloy-sol-types = "0.1"
 | Week | Tasks                                                            |
 | ---- | ---------------------------------------------------------------- |
 | 1    | VPS setup, PostgreSQL + TimescaleDB installation, project initialization |
-| 2    | Implement wallet tracker + market polling modules                |
+| 2    | Implement wallet tracker using Alloy + public RPC endpoints      |
 | 3    | Add alert engine and trigger rules                               |
 | 4    | Integration, testing, deployment, monitoring setup               |
 
-✅ You'll now have: *a production-ready tool that watches wallets and market behavior in real-time on a VPS.*
+✅ You'll now have: *a production-ready tool that watches wallets and market behavior in real-time on a VPS using free RPC endpoints.*
 
 ---
 
@@ -90,7 +103,7 @@ Avoid rate limits, add deeper inspection (e.g., internal txs), prepare for index
 * Choose **Geth** (simpler) or **Erigon** (faster, archive-ready)
 * Provision dedicated SSD space (1TB+)
 * Expose `--http.api` with methods like `eth_getLogs`, `eth_call`, `eth_getBlockByNumber`
-* Replace API queries with local RPC when possible
+* Replace public RPC with local RPC for better performance
 
 ### 🔧 Rust RPC Integration with Alloy
 
@@ -125,6 +138,7 @@ base64 = "0.21"
 * **Built-in ABI handling** for smart contract interactions
 * **Efficient memory usage** with zero-copy operations where possible
 * **Excellent error handling** with detailed error types
+* **No API keys required** - works with any RPC endpoint
 
 ---
 
@@ -134,10 +148,10 @@ base64 = "0.21"
 | ---- | -------------------------------------------- |
 | 5    | Install + sync Geth/Erigon, expose RPC       |
 | 6    | Add Rust module to query your own node       |
-| 7    | Replace some Etherscan queries with RPC logs |
+| 7    | Replace public RPC with local RPC for performance |
 | 8    | Add backup options (failover to public RPC)  |
 
-✅ Now you control your own blockchain data source.
+✅ Now you control your own blockchain data source with unlimited queries.
 
 ---
 
@@ -184,9 +198,9 @@ crypto-intel-rust/
 │   ├── lib.rs
 │   ├── wallet_tracker/
 │   │   ├── mod.rs
-│   │   ├── etherscan.rs
-│   │   ├── alchemy.rs
-│   │   └── alloy_client.rs      <-- Alloy-based wallet tracking
+│   │   ├── alloy_client.rs      <-- Alloy-based wallet tracking (replaces Etherscan/Alchemy)
+│   │   ├── rpc_provider.rs      <-- RPC endpoint management
+│   │   └── types.rs
 │   ├── market_watch/
 │   │   ├── mod.rs
 │   │   ├── dexscreener.rs
@@ -199,7 +213,7 @@ crypto-intel-rust/
 │   │   ├── mod.rs
 │   │   ├── engine.rs
 │   │   └── telegram.rs
-│   ├── rpc_client/      <-- later
+│   ├── rpc_client/      <-- RPC management
 │   │   ├── mod.rs
 │   │   ├── alloy_provider.rs    <-- Alloy provider wrapper
 │   │   ├── ethereum.rs
@@ -286,6 +300,7 @@ use alloy::networks::{Ethereum, Polygon, Bsc};
 * **Comprehensive EVM support** for all chains
 * **Built-in ABI handling** for smart contract interactions
 * **Efficient memory usage** with zero-copy operations
+* **No API keys required** - works with any RPC endpoint
 
 ### Ecosystem Advantages
 * **Cargo** for dependency management and build system
@@ -331,9 +346,9 @@ cargo add alloy-primitives alloy-json-abi alloy-sol-types
 # 5. Run migrations
 cargo sqlx migrate run
 
-# 6. Set up configuration
+# 6. Set up configuration (no API keys needed!)
 cp configs/config.toml.example configs/config.toml
-# Edit config.toml with your API keys
+# Edit config.toml with RPC endpoints (no API keys required)
 
 # 7. Build and deploy
 cargo build --release
@@ -351,7 +366,7 @@ sudo journalctl -u crypto-intel-rust -f
 
 ## ✅ What Next?
 
-1. Want me to scaffold Phase 1 in Rust with wallet tracking + DexScreener + DB writing using Alloy?
+1. Want me to scaffold Phase 1 in Rust with wallet tracking using Alloy + public RPC endpoints?
 2. Want help setting up the VPS and PostgreSQL database for production deployment?
 3. Want starter code for a PostgreSQL schema and Rust models with sqlx + Alloy types?
 

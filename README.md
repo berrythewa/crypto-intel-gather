@@ -6,7 +6,7 @@ High-performance crypto forensics backend built with Rust, Alloy, and TimescaleD
 
 This repository contains the core engine for crypto forensics - a high-performance Rust backend that:
 
-- **Tracks wallet activity** across multiple EVM chains using Alloy
+- **Tracks wallet activity** across multiple EVM chains using Alloy and RPC endpoints
 - **Monitors market movements** via DexScreener and CoinGecko APIs
 - **Stores time-series data** in TimescaleDB for efficient analytics
 - **Sends real-time alerts** on interesting patterns
@@ -17,10 +17,10 @@ This repository contains the core engine for crypto forensics - a high-performan
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Blockchain    │    │   Rust Backend  │    │   TimescaleDB   │
-│   APIs          │───►│   (Core Engine) │───►│   (Data Store)  │
+│   RPC Endpoints │───►│   (Core Engine) │───►│   (Data Store)  │
 │                 │    │                 │    │                 │
-│ • Etherscan     │    │ • Wallet Tracker│    │ • Hypertables   │
-│ • Alchemy       │    │ • Market Watch  │    │ • Compression   │
+│ • Public RPC    │    │ • Wallet Tracker│    │ • Hypertables   │
+│ • Self-hosted   │    │ • Market Watch  │    │ • Compression   │
 │ • DexScreener   │    │ • Alert Engine  │    │ • Retention     │
 │ • CoinGecko     │    │ • EVM Client    │    │ • Aggregates    │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
@@ -33,7 +33,7 @@ This repository contains the core engine for crypto forensics - a high-performan
 - **Rust**: 1.70+ with Cargo
 - **Docker**: For TimescaleDB
 - **PostgreSQL**: 14+ (if not using Docker)
-- **API Keys**: Etherscan, Alchemy, DexScreener
+- **RPC Endpoints**: Public RPC URLs (no API keys required)
 
 ### 1. Clone Repository
 
@@ -59,7 +59,7 @@ chmod +x scripts/setup-db.sh
 # Copy example config
 cp configs/config.toml.example configs/config.toml
 
-# Edit with your API keys
+# Edit with RPC endpoints (no API keys needed!)
 nano configs/config.toml
 ```
 
@@ -98,9 +98,8 @@ crypto-intel-rust/
 │   ├── wallet_tracker/         # Wallet monitoring
 │   │   ├── mod.rs
 │   │   ├── types.rs
-│   │   ├── etherscan.rs
-│   │   ├── alchemy.rs
-│   │   └── alloy_client.rs
+│   │   ├── alloy_client.rs     # Alloy-based wallet tracking
+│   │   └── rpc_provider.rs     # RPC endpoint management
 │   ├── market_watch/           # Market data collection
 │   │   ├── mod.rs
 │   │   ├── types.rs
@@ -145,9 +144,10 @@ crypto-intel-rust/
 # Database
 DATABASE_URL=postgresql://user:pass@localhost/crypto_intel
 
-# API Keys
-ETHERSCAN_API_KEY=your_key_here
-ALCHEMY_API_KEY=your_key_here
+# RPC Endpoints (no API keys required)
+ETHEREUM_RPC_URL=https://eth.llamarpc.com
+POLYGON_RPC_URL=https://polygon-rpc.com
+BSC_RPC_URL=https://bsc-dataseed1.binance.org
 
 # Logging
 RUST_LOG=info
@@ -168,8 +168,10 @@ max_connections = 10
 timeout_seconds = 30
 
 [wallet_tracker]
-etherscan_api_key = "your_etherscan_api_key"
-alchemy_api_key = "your_alchemy_api_key"
+# RPC endpoints (no API keys required)
+ethereum_rpc_url = "https://eth.llamarpc.com"
+polygon_rpc_url = "https://polygon-rpc.com"
+bsc_rpc_url = "https://bsc-dataseed1.binance.org"
 tracking_interval_seconds = 60
 
 [market_watch]
@@ -420,11 +422,21 @@ refactor: improve error handling in alerts
 
 ## 📚 Documentation
 
-- **[API Reference](docs/api.md)**: Complete API documentation
-- **[Architecture](docs/architecture.md)**: System design and data flow
-- **[Deployment](docs/deployment.md)**: Production deployment guide
-- **[Development](docs/development.md)**: Development setup and workflow
-- **[Database](docs/database.md)**: Database schema and optimization
+- **[ROADMAP](docs/ROADMAP.md)**: Complete development roadmap and project phases
+- **[PHASE1](docs/PHASE1.md)**: Detailed implementation guide for Phase 1 MVP
+- **[MIGRATIONS_README](docs/MIGRATIONS_README.md)**: Database migration guide and best practices
+- **[CONTAINERIZED_MIGRATIONS](docs/CONTAINERIZED_MIGRATIONS.md)**: Docker-based migration workflow
+
+### Documentation Overview
+
+The `docs/` directory contains comprehensive documentation for the Crypto Intel Rust project:
+
+- **ROADMAP.md**: Complete project roadmap with 4 phases, from MVP to advanced analytics
+- **PHASE1.md**: Step-by-step implementation guide for the initial MVP with wallet tracking and market monitoring
+- **MIGRATIONS_README.md**: Database schema design, migration strategies, and TimescaleDB optimization
+- **CONTAINERIZED_MIGRATIONS.md**: Docker-based development and deployment workflow for database migrations
+
+For development setup, start with [PHASE1.md](docs/PHASE1.md) for the complete implementation guide.
 
 ## 🔗 Related Repositories
 
